@@ -1,3 +1,11 @@
+"""
+A Dog's Life, a game for the iPhone developed in Pythonista using the Scene module. 
+
+In the game, you play as the character of a dog, chasing a wolf on a forest meadow. 
+
+You move the dog using the iPhone's built-in gyroscope and accelerometer. 
+"""
+
 from scene import *
 from random import *
 import random
@@ -5,7 +13,8 @@ import math
 import numpy
 import sound
 
-
+#The class of the dog, the protagonist of the game. The dog is built up of circular
+#shape nodes which are positioned relative to each other. 
 class Dog (ShapeNode):
         def __init__(self, **kwargs):
                 ShapeNode.__init__(self, ui.Path.oval(0, 0, 20, 20), 'brown', **kwargs) 
@@ -30,12 +39,14 @@ class Dog (ShapeNode):
                 self.lear.position = (8 * math.cos(7 * math.pi / 8), 8 * math.sin(7 * math.pi / 8))
                 self.rear.position = (8 * math.cos(1 * math.pi / 8), 8 * math.sin(1 * math.pi / 8))
                 self.nose.position = (10 * math.cos(2 * math.pi / 4), 10 * math.sin(2 * math.pi / 4))
-                self.turn_head_status = True
+                self.turn_head_status = True #This boolean controls if the dog is turning its head. 
                 self.max_speed = 10
                 self.gait = 15
                 self.move_time = 0
                 self.radius = 10
-
+        
+        #This method returns the paw print of the dog. Each animal in the game (so far there are only dogs and wolves)
+        #have their own paw print, which they leave in their wake as they move forward. 
         def paw_print(self):
                 paw = ShapeNode(ui.Path.oval(0, 0, 5, 5), 'black') 
                 toes = []       
@@ -44,7 +55,9 @@ class Dog (ShapeNode):
                         paw.add_child(toes[i])
                         toes[i].position = (5 * math.cos((2 + i) * math.pi / 6), 5 * math.sin((2 + i) * math.pi / 6))
                 return paw
-
+        
+        #This method controls the turning of the dog's head. The dog looks around itself when sitting still. In a future version, 
+        #where the dog is looking will indicate the location of a wolf. 
         def turn_head(self, velocity):
                 actions = [Action.wait(1), Action.rotate_by(-math.pi / 8, 1), Action.wait(2), Action.rotate_by(math.pi / 4, 2), Action.wait(2), Action.rotate_by(-math.pi / 8, 1), Action.call(self.change_turn_head)]
 
@@ -63,6 +76,8 @@ class Dog (ShapeNode):
                 else:
                         self.turn_head_status = True    
 
+        #This method calculates the velocity of the dog based on the input, which is given by the 
+        #position of the iPhone, making sure that the dog does not exceed its maximum velocity. 
         def velocity(self, u, v):
                 if abs(u) > 0.05:
                         if abs(u) < 1:
@@ -81,13 +96,18 @@ class Dog (ShapeNode):
                         V = 0  
 
                 return [U, V]
-
+        
+        #This method calculates the speed given the velocity. 
         def speed(self, velocity):
                 u = velocity[0]
                 v = velocity[1]
                 speed = math.sqrt(u * u + v * v)
                 return speed
-
+        
+        #This method controls the animation of the dog when its moving. As the dog runs faster,
+        #it stretches out, and the various body parts increase and decrease in size in a periodic 
+        #fashion, to simulate the effect of the dog moving up and down. It also sees to that
+        #the body parts are properly aligned with the direction of movement. 
         def move(self, u, v):
                 t = self.move_time
                 ang = numpy.angle(numpy.complex(u, v))
@@ -117,7 +137,9 @@ class Dog (ShapeNode):
                         self.tail1.position = (self.tail1.position.x, -9 - 5 * vel )
                         self.tail2.position = (self.tail2.position.x, -13 - 10 * vel)
                         self.tail3.position = (self.tail3.position.x, -17 - 15 * vel)
-
+        
+        #Being a happy dog, it always wags its tail. In a future version, the dog will cease
+        #wagging a tail when it senses the presence of a wolf. 
         def wag_tail(self, t):
                 self.tail1.position = (math.sin(0.1 * t), self.tail1.position.y)
                 self.tail2.position = (3 * math.sin(0.1 * t - 1), self.tail2.position.y)
