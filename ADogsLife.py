@@ -39,7 +39,9 @@ class Dog (ShapeNode):
                 self.lear.position = (8 * math.cos(7 * math.pi / 8), 8 * math.sin(7 * math.pi / 8))
                 self.rear.position = (8 * math.cos(1 * math.pi / 8), 8 * math.sin(1 * math.pi / 8))
                 self.nose.position = (10 * math.cos(2 * math.pi / 4), 10 * math.sin(2 * math.pi / 4))
+                
                 self.turn_head_status = True #This boolean controls if the dog is turning its head. 
+                
                 self.max_speed = 10
                 self.gait = 15 #Controls with which frequency paw prints are made. 
                 self.move_time = 0
@@ -56,7 +58,7 @@ class Dog (ShapeNode):
                         toes[i].position = (5 * math.cos((2 + i) * math.pi / 6), 5 * math.sin((2 + i) * math.pi / 6))
                 return paw
         
-        #This method controls the turning of the dog's head. The dog looks around itself when sitting still. In a future version, 
+        #This method controls the turning of the dog's head. The dog looks around when sitting still. In a future version, 
         #where the dog is looking will indicate the location of a wolf. 
         def turn_head(self, velocity):
                 actions = [Action.wait(1), Action.rotate_by(-math.pi / 8, 1), Action.wait(2), Action.rotate_by(math.pi / 4, 2), Action.wait(2), Action.rotate_by(-math.pi / 8, 1), Action.call(self.change_turn_head)]
@@ -145,7 +147,7 @@ class Dog (ShapeNode):
                 self.tail2.position = (3 * math.sin(0.1 * t - 1), self.tail2.position.y)
                 self.tail3.position = (6 * math.sin(0.1 * t - 2), self.tail3.position.y) 
 
-#The class of the wolf, the dog's antagonist. It is very similar to the dog class, with the main exception that 
+#The class for the wolf, the dog's antagonist. It is very similar to the dog class, with the main exception that 
 #the wolf has an additional velocity method, which allows it to move automatically across the screen in a 
 #seemingly random fashion. The wolf also has a counter attached to it, which keeps track of how often 
 #it has been attacked by the dog (more accurately, how much life it has still got). 
@@ -173,7 +175,9 @@ class Wolf (ShapeNode):
                 self.lear.position = (8 * math.cos(7 * math.pi / 8), 8 * math.sin(7 * math.pi / 8))
                 self.rear.position = (8 * math.cos(1 * math.pi / 8), 8 * math.sin(1 * math.pi / 8))
                 self.nose.position = (10 * math.cos(2 * math.pi / 4), 10 * math.sin(2 * math.pi / 4))
+                
                 self.turn_head_status = True
+                
                 self.max_speed = 7
                 self.gait = 15
                 self.time = 0
@@ -221,7 +225,7 @@ class Wolf (ShapeNode):
                         self.turn_head_status = True    
         
         #This method allows the wolf to move automatically. It moves according to the sum of to trigonometric 
-        #functions with different periodicity and amplitude, in order to achieve a smooth moving pattern which 
+        #functions with different periodicity and amplitude in order to achieve a smooth moving pattern which 
         #appears semi-random. The parameters have been determined through trial and error. 
         def velocity(self, u, v):
                 t = self.time
@@ -261,7 +265,7 @@ class Wolf (ShapeNode):
 
                 return [U, V]
 
-        #Calculates the speed give the velocity. 
+        #Calculates the speed given the velocity. 
         def speed(self, velocity):
                 u = velocity[0]
                 v = velocity[1]
@@ -355,7 +359,7 @@ class Game (Scene):
 
                 self.dog = Dog(parent=self)
                 self.dog.position = (self.size.w / 2, self.size.h / 2)
-                self.dog.z_position = 1
+                self.dog.z_position = 1 #The dog's animation takes priority over that of the wolf when they collide. 
 
                 self.wolf = Wolf(parent=self)
                 self.wolf.position = (self.size.w / 2, self.size.h / 2 - 30)
