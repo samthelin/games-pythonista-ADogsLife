@@ -1,7 +1,7 @@
 """
 A Dog's Life, a game for the iPhone developed in Pythonista using the Scene module. 
 
-In the game you play as the character of a dog chasing a wolf on a forest meadow. 
+In the game you play as the character of a dog chasing a wolf across a forest meadow. 
 
 You move the dog using the iPhone's built-in gyroscope and accelerometer. 
 """
