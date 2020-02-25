@@ -1,7 +1,7 @@
 """
 A Dog's Life, a game for the iPhone developed in Pythonista using the Scene module. 
 
-In the game, you play as the character of a dog, chasing a wolf on a forest meadow. 
+In the game you play as the character of a dog chasing a wolf on a forest meadow. 
 
 You move the dog using the iPhone's built-in gyroscope and accelerometer. 
 """
@@ -41,7 +41,7 @@ class Dog (ShapeNode):
                 self.nose.position = (10 * math.cos(2 * math.pi / 4), 10 * math.sin(2 * math.pi / 4))
                 self.turn_head_status = True #This boolean controls if the dog is turning its head. 
                 self.max_speed = 10
-                self.gait = 15
+                self.gait = 15 #Controls with which frequency paw prints are made. 
                 self.move_time = 0
                 self.radius = 10
         
@@ -145,7 +145,10 @@ class Dog (ShapeNode):
                 self.tail2.position = (3 * math.sin(0.1 * t - 1), self.tail2.position.y)
                 self.tail3.position = (6 * math.sin(0.1 * t - 2), self.tail3.position.y) 
 
-
+#The class of the wolf, the dog's antagonist. It is very similar to the dog class, with the main exception that 
+#the wolf has an additional velocity method, which allows it to move automatically across the screen in a 
+#seemingly random fashion. The wolf also has a counter attached to it, which keeps track of how often 
+#it has been attacked by the dog (more accurately, how much life it has still got). 
 class Wolf (ShapeNode):
         def __init__(self, **kwargs):
                 ShapeNode.__init__(self, ui.Path.oval(0, 0, 20, 20), 'gray', **kwargs) 
@@ -186,7 +189,8 @@ class Wolf (ShapeNode):
                 self.health_label = LabelNode('100', self.health_font, parent=self, color = 'black')
                 #self.add_child(self.health_label)
                 self.health_label.position = (20, 20)
-
+        
+        #Just like the dog, the wolf leaves paw prints. 
         def paw_print(self):
                 paw = ShapeNode(ui.Path.oval(0, 0, 5, 5), 'black') 
                 toes = []       
@@ -195,7 +199,9 @@ class Wolf (ShapeNode):
                         paw.add_child(toes[i])
                         toes[i].position = (5 * math.cos((2 + i) * math.pi / 6), 5 * math.sin((2 + i) * math.pi / 6))
                 return paw
-
+        
+        #The wolf also has a method for turning its head. In practice, this does not happen when the automatic 
+        #velocity method is used for the wolf however, as it does not come to a stand-still. 
         def turn_head(self, velocity):
                 actions = [Action.wait(1), Action.rotate_by(-math.pi / 8, 1), Action.wait(2), Action.rotate_by(math.pi / 4, 2), Action.wait(2), Action.rotate_by(-math.pi / 8, 1), Action.call(self.change_turn_head)]
 
@@ -213,7 +219,10 @@ class Wolf (ShapeNode):
                         self.turn_head_status = False
                 else:
                         self.turn_head_status = True    
-
+        
+        #This method allows the wolf to move automatically. It moves according to the sum of to trigonometric 
+        #functions with different periodicity and amplitude, in order to achieve a smooth moving pattern which 
+        #appears semi-random. The parameters have been determined through trial and error. 
         def velocity(self, u, v):
                 t = self.time
                 self.speed_x =  -5 * math.sin(t * 2 * math.pi / 700) + 2 * math.sin(t * 2 * math.pi / 400)
@@ -231,6 +240,8 @@ class Wolf (ShapeNode):
 
                 return [U, V]
 
+        #The wolf also has a manual velocity method, making it possible to play as the wolf instead
+        #(it is mostly used for testing purposes though). 
         def velocity_manual(self, u, v):
                 if abs(u) > 0.05:
                         if abs(u) < 1:
@@ -250,12 +261,15 @@ class Wolf (ShapeNode):
 
                 return [U, V]
 
+        #Calculates the speed give the velocity. 
         def speed(self, velocity):
                 u = velocity[0]
                 v = velocity[1]
                 speed = math.sqrt(u * u + v * v)
                 return speed
 
+        #Just as for the dog, this method controls the animation of the wolf as it moves, trying 
+        #to make its movements look somewhat dynamic. 
         def move(self, u, v):
                 t = self.move_time
                 ang = numpy.angle(numpy.complex(u, v))
@@ -287,17 +301,22 @@ class Wolf (ShapeNode):
                         self.tail3.position = (self.tail3.position.x, -17 - 15 * vel)
                         self.health_label.rotation = math.pi / 2 - ang
 
+        #The wolf can also wag its tail. 
         def wag_tail(self, t):
                 self.tail1.position = (math.sin(0.1 * t), self.tail1.position.y)
                 self.tail2.position = (3 * math.sin(0.1 * t - 1), self.tail2.position.y)
                 self.tail3.position = (6 * math.sin(0.1 * t - 2), self.tail3.position.y) 
 
+#A primitive class for the flowers on the meadow. This has practically been replaced by the 
+#updated flower class below. 
 class Flower (ShapeNode):
         def __init__(self, **kwargs):
                 ShapeNode.__init__(self, ui.Path.oval(0, 0, 10, 10), 'pink', **kwargs) 
                 self.cen = ShapeNode(ui.Path.oval(0, 0, 3, 3), 'yellow')
                 self.add_child(self.cen)
 
+#The class for the flowers on the meadow. These are built out of shape nodes. Each flower has 
+#a yellow centre and five white petals. 
 class Flower2 (ShapeNode):
         def __init__(self, **kwargs):
                 ShapeNode.__init__(self, ui.Path.oval(0, 0, 5, 5), 'black', **kwargs) 
@@ -314,10 +333,13 @@ class Flower2 (ShapeNode):
                 cen = ShapeNode(ui.Path.oval(0, 0, 5,5), 'yellow')
                 self.add_child(cen)
 
+#The class for the trees making the forest around the meadow, which function as the the bound for 
+#the game area. 
 class Tree (ShapeNode):
         def __init__(self, **kwargs):
                 ShapeNode.__init__(self, ui.Path.oval(0, 0, 150, 150), '#006900', **kwargs) 
 
+#The class taking care of the actual runnning of the game.                 
 class Game (Scene):
         def setup(self):
                 self.background_color = 'green'
@@ -342,10 +364,14 @@ class Game (Scene):
                 self.flower_list = []
                 self.tree_list = []
 
+                #We place 200 flowers randomly on the meadow. 
                 for i in range(200):
                         self.flower_list.append(Flower2(parent=self))
                         self.flower_list[i].position = (random.randint(-self.FIELD_SIZE, self.FIELD_SIZE), random.randint(-self.FIELD_SIZE, self.FIELD_SIZE))
-
+                
+                #The following four blocks of code make up the boundary of the forest, to make sure it has no
+                #holes in it, as the tress below are placed randomly, which could result in patches of grass 
+                #at the forest boundary otherwise. 
                 forest_right = ShapeNode(ui.Path.rect(0, 0, 300, 2 * (self.FIELD_SIZE + self.size.h / 3)), '#006900')
                 self.add_child(forest_right)
                 forest_right.position = (self.FIELD_SIZE + 150, 0)
@@ -365,13 +391,15 @@ class Game (Scene):
                 self.add_child(forest_down)
                 forest_down.position = (0, -(self.FIELD_SIZE + 150))
                 forest_down.z_position = 2
-
+        
+                #One hundred trees are placed randomly on the sides of the meadow. 
                 for i in range(100):
                         self.tree_list.append(Tree(parent=self))
                         x = random.choice([-self.FIELD_SIZE, self.FIELD_SIZE])
                         self.tree_list[i].position = (x + (x / abs(x)) * random.randint(-50, 0), random.randint(-self.FIELD_SIZE, self.FIELD_SIZE)) 
                         self.tree_list[i].z_position = 2
-
+                
+                #One hundred trees are placed randomly above and below the meadow. 
                 for i in range(100, 200):
                         self.tree_list.append(Tree(parent=self))
                         y = random.choice([-self.FIELD_SIZE, self.FIELD_SIZE])
@@ -379,7 +407,7 @@ class Game (Scene):
                         self.tree_list[i].z_position = 2 
 
 
-
+        #This method is the update loop of the Game class and updates the game at about 60 FPS.
         def update(self):
                 self.set_position()
                 self.move_animal(self.wolf)
@@ -395,21 +423,26 @@ class Game (Scene):
                 self.wolf_collision()
                 #self.sniff()
                 self.time += 1
-
+        
+        #This method calculates the velocity based on the position of the iPhone, as the 
+        #dog is moved using the iPhone's built-in gyroscope and accelerometer. 
         def get_velocity(self): 
                 g = gravity()   
                 u = (g.x - self.gx) / self.factor_x
                 v = (g.y - self.gy) / self.factor_y
                 vel = [u, v]
                 return vel
-
+        
+        #Same as above, but returns the speed instead. 
         def get_speed(self): 
                 g = gravity()           
                 u = (g.x - self.gx) / self.factor_x
                 v = (g.y - self.gy) / self.factor_y
                 speed = math.sqrt(u * u + v * v)
                 return speed
-
+        
+        #Method to allow the dog to sniff after the wolf. Not currently in use. Will be incorporated 
+        #in the Dog class in a future version. 
         def sniff(self):
                 t = self.time % 120
                 if self.get_speed() < 0.05:
@@ -417,8 +450,12 @@ class Game (Scene):
                                 self.dog.nose.size = (5 + 2 * math.sin(t), 5 + 2 * math.sin(t))
                         else: 
                                 self.dog.nose.size = (5, 5)
-
-        def leave_tracks(self, animal):
+        
+        #Method that makes the animal (so far dog or wolf) leave tracks as it runs across the screen. 
+        #These are aligned with the direction of movement, become spread out as the animal moves faster, 
+        #and gradually fade. The current positioning of the paw prints is adapted for the dog and wolf.
+        #This will be made more general in future versions. 
+       def leave_tracks(self, animal):
                 vel = animal.velocity(u = self.get_velocity()[0], v = self.get_velocity()[1])
                 speed = animal.speed(velocity = vel)
                 mod = int(animal.gait + speed)
@@ -440,7 +477,10 @@ class Game (Scene):
                                         paw.position = animal.position + (0.7 * animal.radius * math.cos(rot + (-3 + 4 * i) * math.pi / 4), 0.7 * animal.radius * math.sin(rot + (-3 + 4 * i) * math.pi / 4))
                                         actions = [Action.fade_to(0, 1.5), Action.remove()]
                                         paw.run_action(Action.sequence(actions))                                        
-
+        
+        #This method moves the animals across the screen by using the given animals velocity method. 
+        #This means that the wolf is moving according to its automatic path, and the dog moves 
+        #based on the positioning of the iPhone. 
         def move_animal(self, animal):
                 x = animal.position.x
                 y = animal.position.y
@@ -452,7 +492,9 @@ class Game (Scene):
                 x = max(-S, min(S, x))
                 y = max(-S, min(S, y))
                 animal.position = (x, y)
-
+        
+        #This method centers the screen on the animal fed into it. In the current implementation of the game, 
+        #this is the dog, but it can flexibly be changed to any of the animals for a different player experience. 
         def move_screen(self, animal):  
                 x = animal.position.x
                 y = animal.position.y
@@ -466,7 +508,10 @@ class Game (Scene):
                         Y -= animal.velocity(u = self.get_velocity()[0], v = self.get_velocity()[1])[1] 
 
                 self.position = (X, Y)
-
+        
+        #This method makes sure that the moving of the dog works well regardless of how the iPhone is positioned 
+        #as the game is started. It makes sure that the neutral position (where the dog is not moving), is that 
+        #of the phone as the game is started. 
         def set_position(self):
                 if self.t == 0:
                         g = gravity()
@@ -474,7 +519,9 @@ class Game (Scene):
                         self.gy = g.y
                         self.factor_x = min(1 - self.gx, 1 + self.gx)
                         self.factor_y = min(1 - self.gy, 1 + self.gy)
-
+        
+        #This method checks for collisions between the dog and the wolf, and takes a point of the 
+        #wolf's health counter each time this happens. 
         def wolf_collision(self):
                 v1 = Vector2(self.dog.position.x, self.dog.position.y)
                 v2= Vector2(self.wolf.position.x, self.wolf.position.y)
