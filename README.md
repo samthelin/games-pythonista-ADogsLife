@@ -5,6 +5,4 @@ In the game you are playing the character of a dog chasing a wolf on a forest me
 
 ![](ADogsLife_GIF.gif)
 
-The code still needs a facelift and is lacking in comments. This will be fixed in the near future. 
-
-The game is at a beta stage and is being continously extended. A future version will include sheep, with the dog's aim being to protect these from the wolf. 
+The game is at a beta stage and is being continously improved. A future version will include sheep, with the dog's aim being to protect these from the wolf. 
